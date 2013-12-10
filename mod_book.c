@@ -46,10 +46,26 @@ SWITCH_STANDARD_APP(book_function)
         SWITCH_LOG_INFO, "I'm a book, My name is: %s\n", name);
 }
 
+SWITCH_STANDARD_API(book_api_function)
+{
+    const char *name;
+
+    if (zstr(cmd)) {
+        name = "No Name";
+    } else {
+        name = cmd;
+    }
+
+	stream->write_function(stream, "I'm a book, My name is: %s\n", name);
+
+	return SWITCH_STATUS_SUCCESS;
+}
+
 SWITCH_MODULE_LOAD_FUNCTION(mod_book_load)
 {
 	switch_dialplan_interface_t *dp_interface;
 	switch_application_interface_t *app_interface;
+	switch_api_interface_t *api_interface;
 
 	*module_interface = switch_loadable_module_create_module_interface(pool, modname);
 
@@ -57,6 +73,9 @@ SWITCH_MODULE_LOAD_FUNCTION(mod_book_load)
 
 	SWITCH_ADD_APP(app_interface, "book", "book example", "book example",
                        book_function, "<name>", SAF_SUPPORT_NOMEDIA);
+
+	SWITCH_ADD_API(api_interface, "book", "book example",
+					   book_api_function, "[name]");
 
 	return SWITCH_STATUS_SUCCESS;
 }

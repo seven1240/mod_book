@@ -23,19 +23,40 @@ SWITCH_STANDARD_DIALPLAN(book_dialplan_hunt)
 		abort();
 	}
 
-	switch_caller_extension_add_application(session, extension, "log",
-		"INFO Hey, I'm in the book");
+	switch_caller_extension_add_application(session, extension,
+		"log", "INFO Hey, I'm in the book");
+
+	switch_caller_extension_add_application(session, extension,
+		"book", "FreeSWITCH - The Definitive Guide");
 
 	return extension;
+}
+
+SWITCH_STANDARD_APP(book_function)
+{
+    const char *name;
+
+    if (zstr(data)) {
+        name = "No Name";
+    } else {
+        name = data;
+    }
+
+    switch_log_printf(SWITCH_CHANNEL_SESSION_LOG(session),
+        SWITCH_LOG_INFO, "I'm a book, My name is: %s\n", name);
 }
 
 SWITCH_MODULE_LOAD_FUNCTION(mod_book_load)
 {
 	switch_dialplan_interface_t *dp_interface;
+	switch_application_interface_t *app_interface;
 
 	*module_interface = switch_loadable_module_create_module_interface(pool, modname);
 
 	SWITCH_ADD_DIALPLAN(dp_interface, "book", book_dialplan_hunt);
+
+	SWITCH_ADD_APP(app_interface, "book", "book example", "book example",
+                       book_function, "<name>", SAF_SUPPORT_NOMEDIA);
 
 	return SWITCH_STATUS_SUCCESS;
 }
